@@ -1,70 +1,66 @@
-apply plugin: 'com.android.library'
-apply plugin: 'android-library'
-apply plugin: 'maven'
-apply plugin: 'signing'
-
-version = "1.0.1"
-group = "com.eftimoff"
-
-android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
-
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.0'
     }
 }
+repositories {
+    mavenCentral()
+    maven { url 'http://download.crashlytics.com/maven' }
 
-configurations {
-    archives {
-        extendsFrom configurations.default
+    maven {
+        url releasesRepoUrl
+        credentials {
+            username releasesRepoUsername
+            password releasesRepoPassword
+        }
     }
-}
-
-signing {
-    required { has("release") && gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
-}
-
-uploadArchives {
-    configuration = configurations.archives
-    repositories.mavenDeployer {
-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-        pom.project {
-            name 'Pattern view for android.'
-            packaging 'aar'
-            description 'Pattern view for android.That one using lock or unlock.'
-            url 'https://github.com/geftimov/android-patternview'
-
-            scm {
-                url 'scm:git@github.com:geftimov/android-patternview.git'
-                connection 'scm:git@github.com:geftimov/android-patternview.git'
-                developerConnection 'scm:git@github.com:geftimov/android-patternview.git'
-            }
-
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-
-            developers {
-                developer {
-                    id 'geftimov'
-                    name 'Georgi Eftimov'
-                    email 'jokatavr@gmail.com'
-                }
-            }
+    maven {
+        url snapshotsRepoUrl
+        credentials {
+            username snapshotsRepoUsername
+            password snapshotsRepoPassword
+        }
+    }
+    maven {
+        url thirdPartyRepoUrl
+        credentials {
+            username thirdPartyRepoUsername
+            password thirdPartyRepoPassword
         }
     }
 }
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+version = 'bk-1.0.1@aar'
+group = 'com.eftimoff'
 
-dependencies {
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.1.0"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+uploadArchives {
+    repositories {
 
+        mavenDeployer {
+            repository(url: backeliteAndroidRepoUrl) {
+                authentication(userName: backeliteRepoUsername, password: backeliteRepoPassword)
+            }
+
+            snapshotRepository(url: snapshotsRepoUrl) {
+                authentication(userName: snapshotsRepoUsername, password: snapshotsRepoPassword)
+            }
+
+            pom.project {
+                name 'patternview'
+                packaging 'aar'
+            }
+        }
+    }
 }
