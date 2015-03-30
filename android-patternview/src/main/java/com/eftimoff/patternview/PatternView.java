@@ -1,5 +1,10 @@
 package com.eftimoff.patternview;
 
+import com.eftimoff.mylibrary.R;
+import com.eftimoff.patternview.cells.Cell;
+import com.eftimoff.patternview.cells.CellManager;
+import com.eftimoff.patternview.utils.CellUtils;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -20,11 +25,6 @@ import android.util.AttributeSet;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
-
-import com.eftimoff.mylibrary.R;
-import com.eftimoff.patternview.cells.Cell;
-import com.eftimoff.patternview.cells.CellManager;
-import com.eftimoff.patternview.utils.CellUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +87,7 @@ public class PatternView extends View {
     private boolean enableHapticFeedback = true;
     private boolean patternInProgress = false;
 
-    private final float diameterFactor = 0.10f;
+    private float diameterFactor = 0.10f;
     private final float hitFactor = 0.6f;
 
     private float squareWidth;
@@ -138,6 +138,7 @@ public class PatternView extends View {
             circlePaint.setColorFilter(new PorterDuffColorFilter(typedArray.getColor(R.styleable.PatternView_circleColor, Color.RED), PorterDuff.Mode.SRC_ATOP));
             pathPaint.setColor(typedArray.getColor(R.styleable.PatternView_pathColor, Color.WHITE));
             gridSize = typedArray.getInt(R.styleable.PatternView_gridSize, 3);
+            diameterFactor = typedArray.getFloat(R.styleable.PatternView_diameterFactor, 0.10f);
         } finally {
             typedArray.recycle();
         }
@@ -996,7 +997,7 @@ public class PatternView extends View {
 
         circleMatrix.setTranslate(leftX + offsetX, topY + offsetY);
         circleMatrix.preTranslate(bitmapWidth / 2, bitmapHeight / 2);
-        circleMatrix.preScale(sx, sy);
+        //circleMatrix.preScale(sx, sy);
         circleMatrix.preTranslate(-bitmapWidth / 2, -bitmapHeight / 2);
 
         canvas.drawBitmap(outerCircle, circleMatrix, circlePaint);
