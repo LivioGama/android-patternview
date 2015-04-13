@@ -10,8 +10,9 @@
         android:layout_width="250dp"
         android:layout_height="250dp"
         patternview:diameterFactor="0.5"
-        patternview:pathColor="@color/primary_dark_material_light"
-        patternview:circleColor="@color/highlighted_text_material_light"
+        patternview:idleColor="@android:color/holo_blue_bright"
+        patternview:rightColor="@android:color/holo_green_light"
+        patternview:wrongColor="@android:color/holo_red_light"
         patternview:gridSize="3"/>
 
 </RelativeLayout>

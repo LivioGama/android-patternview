@@ -80,7 +80,7 @@ public class PatternView extends View {
 
     private long animatingPeriodStart;
 
-    private DisplayMode patternDisplayMode = DisplayMode.Correct;
+    private DisplayMode patternDisplayMode = DisplayMode.Idle;
     private boolean inputEnabled = true;
     private boolean inStealthMode = false;
     private boolean inErrorStealthMode = false;
@@ -97,7 +97,6 @@ public class PatternView extends View {
     private Bitmap bitmapBtnTouched;
     private Bitmap bitmapCircleDefault;
     private Bitmap bitmapCircleSelected;
-    private Bitmap bitmapCircleRed;
 
     private final Path currentPath = new Path();
     private final Rect invalidate = new Rect();
@@ -111,6 +110,9 @@ public class PatternView extends View {
     private final int paddingLeft = padding;
     private final int paddingTop = padding;
 
+    private int idleColor;
+    private int wrongColor;
+    private int rightColor;
 
     public PatternView(Context context) {
         this(context, null);
@@ -135,8 +137,11 @@ public class PatternView extends View {
         final TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PatternView);
         try {
             maxSize = typedArray.getDimensionPixelSize(R.styleable.PatternView_maxSize, 0);
-            circlePaint.setColorFilter(new PorterDuffColorFilter(typedArray.getColor(R.styleable.PatternView_circleColor, Color.RED), PorterDuff.Mode.SRC_ATOP));
-            pathPaint.setColor(typedArray.getColor(R.styleable.PatternView_pathColor, Color.WHITE));
+            idleColor = typedArray.getColor(R.styleable.PatternView_idleColor, Color.RED);
+            wrongColor = typedArray.getColor(R.styleable.PatternView_wrongColor, Color.RED);
+            rightColor = typedArray.getColor(R.styleable.PatternView_rightColor, Color.GREEN);
+            circlePaint.setColorFilter(new PorterDuffColorFilter(idleColor, PorterDuff.Mode.SRC_ATOP));
+            pathPaint.setColor(idleColor);
             gridSize = typedArray.getInt(R.styleable.PatternView_gridSize, 3);
             diameterFactor = typedArray.getFloat(R.styleable.PatternView_diameterFactor, 0.10f);
         } finally {
@@ -176,14 +181,12 @@ public class PatternView extends View {
         bitmapCircleDefault = getBitmapFor(R.drawable.pattern_button_untouched);
 
         bitmapCircleSelected = getBitmapFor(R.drawable.pattern_circle_white);
-        bitmapCircleRed = getBitmapFor(R.drawable.pattern_circle_blue);
         computeBitmapSize();
     }
 
     private void computeBitmapSize() {
         // bitmaps have the size of the largest bitmap in this group
-        final Bitmap[] bitmaps = {bitmapBtnDefault,
-                bitmapCircleSelected, bitmapCircleRed};
+        final Bitmap[] bitmaps = {bitmapBtnDefault, bitmapCircleSelected};
 
         for (final Bitmap bitmap : bitmaps) {
             bitmapWidth = Math.max(bitmapWidth, bitmap.getWidth());
@@ -407,7 +410,7 @@ public class PatternView extends View {
     private void resetPattern() {
         mPattern.clear();
         clearPatternDrawLookup();
-        patternDisplayMode = DisplayMode.Correct;
+        patternDisplayMode = DisplayMode.Idle;
         invalidate();
     }
 
@@ -798,7 +801,7 @@ public class PatternView extends View {
         final Cell hitCell = detectAndAddHit(x, y);
         if (hitCell != null) {
             patternInProgress = true;
-            patternDisplayMode = DisplayMode.Correct;
+            patternDisplayMode = DisplayMode.Idle;
             notifyPatternStarted();
         } else {
             /*
@@ -905,6 +908,7 @@ public class PatternView extends View {
         // draw the path of the pattern (unless the user is in progress, and
         // we are in stealth mode)
         final boolean drawPath = (!inStealthMode
+                && patternDisplayMode == DisplayMode.Idle || !inStealthMode
                 && patternDisplayMode == DisplayMode.Correct || !inErrorStealthMode
                 && patternDisplayMode == DisplayMode.Wrong);
 
@@ -958,6 +962,21 @@ public class PatternView extends View {
         Bitmap outerCircle;
         Bitmap innerCircle;
 
+        switch (patternDisplayMode) {
+            case Correct:
+                pathPaint.setColor(rightColor);
+                circlePaint.setColorFilter(new PorterDuffColorFilter(rightColor, PorterDuff.Mode.SRC_ATOP));
+                break;
+            case Wrong:
+                pathPaint.setColor(wrongColor);
+                circlePaint.setColorFilter(new PorterDuffColorFilter(wrongColor, PorterDuff.Mode.SRC_ATOP));
+                break;
+            default:
+                pathPaint.setColor(idleColor);
+                circlePaint.setColorFilter(new PorterDuffColorFilter(idleColor, PorterDuff.Mode.SRC_ATOP));
+                break;
+        }
+
         if (!partOfPattern
                 || (inStealthMode && patternDisplayMode == DisplayMode.Correct)
                 || (inErrorStealthMode && patternDisplayMode == DisplayMode.Wrong)) {
@@ -970,10 +989,11 @@ public class PatternView extends View {
             innerCircle = bitmapBtnTouched;
         } else if (patternDisplayMode == DisplayMode.Wrong) {
             // the pattern is wrong
-            outerCircle = bitmapCircleRed;
+            outerCircle = bitmapCircleSelected;
             innerCircle = bitmapBtnDefault;
         } else if (patternDisplayMode == DisplayMode.Correct
-                || patternDisplayMode == DisplayMode.Animate) {
+                || patternDisplayMode == DisplayMode.Animate
+                || patternDisplayMode == DisplayMode.Idle) {
             // the pattern is correct
             outerCircle = bitmapCircleSelected;
             innerCircle = bitmapBtnDefault;
@@ -1135,6 +1155,10 @@ public class PatternView extends View {
      * How to display the current pattern.
      */
     public enum DisplayMode {
+        /**
+         * The pattern drawn is initialized
+         */
+        Idle,
 
         /**
          * The pattern drawn is correct (i.e draw it in a friendly color)

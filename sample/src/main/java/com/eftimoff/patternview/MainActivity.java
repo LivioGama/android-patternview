@@ -18,7 +18,7 @@ public class MainActivity extends ActionBarActivity {
         patternView = (PatternView) findViewById(R.id.patternView);
         Toast.makeText(getApplicationContext(), "ENTER PATTERN", Toast.LENGTH_LONG).show();
         patternView.setOnPatternDetectedListener(new PatternView.OnPatternDetectedListener() {
-            
+
             @Override
             public void onPatternDetected() {
                 if (patternString == null) {
@@ -27,9 +27,11 @@ public class MainActivity extends ActionBarActivity {
                     return;
                 }
                 if (patternString.equals(patternView.getPatternString())) {
+                    patternView.setDisplayMode(PatternView.DisplayMode.Correct);
                     Toast.makeText(getApplicationContext(), "PATTERN CORRECT", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                patternView.setDisplayMode(PatternView.DisplayMode.Wrong);
                 Toast.makeText(getApplicationContext(), "PATTERN NOT CORRECT", Toast.LENGTH_SHORT).show();
 //                patternView.clearPattern();
             }
