@@ -5,12 +5,18 @@
         <attr name="maxSize" format="dimension"/>
         <!-- Number of rows and columns in the matrix. -->
         <attr name="gridSize" format="integer"/>
+        <!-- The color when the view is initialized -->
+        <attr name="circleIdleColor" format="color"/>
+        <!-- The color when circle is wrong -->
+        <attr name="circleRightColor" format="color"/>
+        <!-- The color when circle is wrong -->
+        <attr name="circleWrongColor" format="color"/>
         <!-- The color when path is initialized -->
-        <attr name="idleColor" format="color"/>
+        <attr name="pathIdleColor" format="color"/>
         <!-- The color when path is wrong -->
-        <attr name="rightColor" format="color"/>
+        <attr name="pathRightColor" format="color"/>
         <!-- The color when path is wrong -->
-        <attr name="wrongColor" format="color"/>
+        <attr name="pathWrongColor" format="color"/>
         <!-- The line diameter factor -->
         <attr name="diameterFactor" format="float"/>
     </declare-styleable>
