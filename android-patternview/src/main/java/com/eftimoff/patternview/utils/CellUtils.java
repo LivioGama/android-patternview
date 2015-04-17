@@ -3,6 +3,8 @@ package com.eftimoff.patternview.utils;
 import com.eftimoff.patternview.cells.Cell;
 import com.eftimoff.patternview.cells.CellManager;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,14 +38,16 @@ public class CellUtils {
      */
     public static List<Cell> stringToPattern(final String string, final CellManager cellManager) {
         final List<Cell> result = new ArrayList<>();
-        final String[] allCells = string.split("&");
-        final int length = allCells.length;
-        for (int i = 0; i < length; i++) {
-            final String[] rowAndColumn = allCells[i].split("-");
-            final int row = Integer.valueOf(rowAndColumn[0]);
-            final int column = Integer.valueOf(rowAndColumn[1]);
-            final Cell cell = cellManager.get(row, column);
-            result.add(cell);
+        if (!TextUtils.isEmpty(string)) {
+            final String[] allCells = string.split("&");
+            final int length = allCells.length;
+            for (int i = 0; i < length; i++) {
+                final String[] rowAndColumn = allCells[i].split("-");
+                final int row = Integer.valueOf(rowAndColumn[0]);
+                final int column = Integer.valueOf(rowAndColumn[1]);
+                final Cell cell = cellManager.get(row, column);
+                result.add(cell);
+            }
         }
         return result;
     }
